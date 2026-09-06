@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Pelajaran XI RPL C</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 24px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 1.5rem;
+            color: #1a73e8;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .time-box {
+            background-color: #e8f0fe;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .date {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #3c4043;
+        }
+        .clock {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-top: 5px;
+        }
+        .status-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .status-card.active {
+            border-color: #34a853;
+            background-color: #e6f4ea;
+        }
+        .status-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #5f6368;
+            margin-bottom: 8px;
+        }
+        .mapel-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #202124;
+            margin-bottom: 6px;
+        }
+        .guru-name {
+            font-size: 1rem;
+            color: #4a4a4a;
+        }
+        .schedule-list {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .schedule-list h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #3c4043;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 5px;
+        }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            font-size: 0.9rem;
+        }
+        .item.current {
+            font-weight: bold;
+            color: #34a853;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>XI RPL C</h1>
+    <div class="subtitle">Jadwal Minggu Ganjil</div>
+
+    <div class="time-box">
+        <div id="date" class="date">Loading...</div>
+        <div id="clock" class="clock">00:00:00</div>
+    </div>
+
+    <div id="statusCard" class="status-card">
+        <div class="status-title">Mata Pelajaran Saat Ini</div>
+        <div id="currentMapel" class="mapel-name">-</div>
+        <div id="currentGuru" class="guru-name">-</div>
+    </div>
+
+    <div class="schedule-list">
+        <h3>Jadwal Hari Ini</h3>
+        <div id="todaySchedule"></div>
+    </div>
+</div>
+
+<script>
+const jadwal = {
+    1: [ // Senin
+        { start: "08:00", end: "09:20", mapel: "Sejarah", guru: "Samsadar S.Pd" },
+        { start: "09:20", end: "10:40", mapel: "PJOK", guru: "Dra. Nurbaya" },
+        { start: "10:40", end: "13:20", mapel: "Agama", guru: "Indah Sri Rahayu, S.Pd" },
+        { start: "13:20", end: "15:20", mapel: "B. Indonesia", guru: "Vini Elfi Yunita, S.Pd M.Pd" }
+    ],
+    2: [ // Selasa
+        { start: "07:30", end: "10:50", mapel: "KIK", guru: "Jumiatin S.IP" },
+        { start: "10:50", end: "13:40", mapel: "B. Indonesia", guru: "Vini Elfi Yunita S.Pd M.Pd" },
+        { start: "13:40", end: "15:00", mapel: "P. Pancasila", guru: "Ruaidah Laobu S.Pd" }
+    ],
+    3: [ // Rabu
+        { start: "07:30", end: "08:50", mapel: "PJOK", guru: "Dra. Nurbaya" },
+        { start: "08:50", end: "10:10", mapel: "P. Pancasila", guru: "Ruaidah Laobu S.Pd" },
+        { start: "10:10", end: "15:00", mapel: "B. Inggris", guru: "Hasmira S.Pd" }
+    ],
+    4: [ // Kamis
+        { start: "07:30", end: "10:10", mapel: "B. Inggris", guru: "Hasmira S.Pd" },
+        { start: "10:10", end: "13:00", mapel: "Matematika", guru: "Fajaruddin Nor Syarif S.Pd M.Pd" },
+        { start: "13:00", end: "15:00", mapel: "Agama", guru: "Indah Sri Rahayu, S.Pd" }
+    ],
+    5: [ // Jumat
+        { start: "07:30", end: "10:15", mapel: "B. Indonesia", guru: "Vini Elfi Yunita, S.Pd. M.Pd" },
+        { start: "10:15", end: "14:45", mapel: "KIK", guru: "Jumiatin S.IP" }
+    ]
+};
+
+const hariNama = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+const bulanNama = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+function timeToMinutes(timeStr) {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+}
+
+function updateTime() {
+    const now = new Date();
+    const dayIndex = now.getDay();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    // Update Tampilan Waktu & Tanggal
+    document.getElementById('clock').innerText = `${hours}:${minutes}:${seconds}`;
+    document.getElementById('date').innerText = `${hariNama[dayIndex]}, ${now.getDate()} ${bulanNama[now.getMonth()]} ${now.getFullYear()}`;
+
+    // Cek Pelajaran Berjalan
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const todayList = jadwal[dayIndex] || [];
+    
+    let activeMapel = null;
+    let scheduleHTML = "";
+
+    if (todayList.length === 0) {
+        scheduleHTML = "<div style='text-align:center; color:#777;'>Tidak ada jadwal pelajaran hari ini.</div>";
+    } else {
+        todayList.forEach(item => {
+            const startMin = timeToMinutes(item.start);
+            const endMin = timeToMinutes(item.end);
+            let isCurrent = false;
+
+            if (currentMinutes >= startMin && currentMinutes < endMin) {
+                activeMapel = item;
+                isCurrent = true;
+            }
+
+            scheduleHTML += `
+                <div class="item ${isCurrent ? 'current' : ''}">
+                    <span>${item.start} - ${item.end} | ${item.mapel}</span>
+                    <span>${item.guru}</span>
+                </div>
+            `;
+        });
+    }
+
+    document.getElementById('todaySchedule').innerHTML = scheduleHTML;
+
+    // Update Status Card
+    const statusCard = document.getElementById('statusCard');
+    if (activeMapel) {
+        document.getElementById('currentMapel').innerText = activeMapel.mapel;
+        document.getElementById('currentGuru').innerText = activeMapel.guru;
+        statusCard.classList.add('active');
+    } else {
+        document.getElementById('currentMapel').innerText = "Tidak Ada KBM / Istirahat";
+        document.getElementById('currentGuru').innerText = "-";
+        statusCard.classList.remove('active');
+    }
+}
+
+setInterval(updateTime, 1000);
+updateTime();
+</script>
+
+</body>
+</html>
